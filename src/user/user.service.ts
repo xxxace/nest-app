@@ -24,13 +24,33 @@ export class UserService {
         return this.user.delete(id);
     }
 
-    list(query: Partial<User>) {
-        return this.user.find({
+    async list(query: Partial<User> & { pageNo?: number, pageSize?: number }) {
+        const pageNo = query.pageNo || 1;
+        const pageSize = query.pageSize || 10;
+
+        const result = await this.user.find({
+            // relations:['tags'],
             where: {
-                name: Like(`%${query.name}%`),
-                gender: query.gender,
-                age: query.age
-            }
-        })
+                name: Like(`%${query.name}%`)
+            },
+            order: {
+                id: "DESC"
+            },
+            skip: (pageNo - 1) * pageSize,
+            take: pageSize
+        });
+
+        const total = await this.user.count({
+            where: {
+                name: Like(`%${query.name}%`)
+            },
+        });
+
+        return {
+            result,
+            total,
+            pageNo,
+            pageSize
+        }
     }
 }

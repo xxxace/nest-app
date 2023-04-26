@@ -6,6 +6,8 @@ import { SensorModule } from './sensor/sensor.module';
 import { ConfigModule } from './config/config.moudle';
 import { MyDynamicModule } from './config/dynamic.module';
 import { UploadModule } from './upload/upload.module';
+import { LoginModule } from './login/login.module';
+import { SpiderModule } from './spider/spider.module';
 
 @Module({
   imports: [
@@ -18,14 +20,16 @@ import { UploadModule } from './upload/upload.module';
       database: 'nest_app',
       retryDelay: 5000,
       retryAttempts: 10,
-      synchronize: true,
-      autoLoadEntities: true
+      synchronize: true, // 实体类同步到数据库
+      autoLoadEntities: true // 自动加载实体类，
     }),
     UserModule,
     SensorModule,
     ConfigModule,
     MyDynamicModule.forRoot('hello dynamic module'),
-    UploadModule
+    UploadModule,
+    LoginModule,
+    SpiderModule
   ],
   controllers: [],
   providers: [],

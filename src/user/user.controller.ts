@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Delete, Inject, Request, Query, Body, Param, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Inject, Request, Query, Body, Param, Headers, ParseIntPipe, UseGuards, SetMetadata } from '@nestjs/common';
 import { UserService } from './user.service';
 import { query } from 'express';
-
+import { RoleGuard } from './role/role.guard';
+import { ReqUrl, Role } from './role/role.decorator';
+@UseGuards(RoleGuard)
 @Controller('user')
 export class UserController {
 
@@ -11,6 +13,7 @@ export class UserController {
         private userService: UserService,
     ) { }
 
+    @Role('admin')
     @Get()
     user() {
         return this.dynamicModule
@@ -24,19 +27,21 @@ export class UserController {
     }
 
     @Get('/queryById')
-    queryById(@Query() query) {
-        if (!query.id) return { code: 200 };
-        return this.userService.queryById(query.id);
+    queryById(@Query('id', ParseIntPipe) id) {
+        if (!id) return { code: 200 };
+        return this.userService.queryById(id);
     }
 
     @Delete('/delete/:id')
-    delete(@Param() params) {
-        if (!params.id) return { code: 200 };
-        return this.userService.delete(params.id);
+    delete(@Param('id', ParseIntPipe) id) {
+        if (!id) return { code: 200 };
+        return this.userService.delete(id);
     }
 
     @Get('/list')
-    list(@Query() query) {
+    @SetMetadata('role', ['admin'])
+    list(@Query() query, @ReqUrl() url) {
+        console.log(url)
         return this.userService.list(query);
     }
 }
